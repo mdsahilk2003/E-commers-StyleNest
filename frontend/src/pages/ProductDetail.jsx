@@ -184,19 +184,33 @@ const ProductDetail = () => {
 
     const fetchProduct = async () => {
         try {
+            setError(null);
             const data = await getProductById(id);
-            setProduct(data);
-            if (data.sizes && data.sizes.length > 0 && !selectedSize) setSelectedSize(data.sizes[0]);
-            if (data.colors && data.colors.length > 0 && !selectedColor) setSelectedColor(data.colors[0]);
+            if (data && (data._id || data.name)) {
+                setProduct(data);
+                if (data.sizes && data.sizes.length > 0 && !selectedSize) setSelectedSize(data.sizes[0]);
+                if (data.colors && data.colors.length > 0 && !selectedColor) setSelectedColor(data.colors[0]);
+                return;
+            }
+            throw new Error('Product not found on server');
         } catch (err) {
-            console.error(err);
-            setError(err.message || 'Failed to load product');
+            console.error('Failed to fetch product from API:', err);
+            // Fallback check against sample products array or default fallback product
+            const sample = sampleProducts.find((p) => p._id === id) || sampleProducts[0];
+            if (sample) {
+                setProduct(sample);
+                if (sample.sizes && sample.sizes.length > 0 && !selectedSize) setSelectedSize(sample.sizes[0]);
+                if (sample.colors && sample.colors.length > 0 && !selectedColor) setSelectedColor(sample.colors[0]);
+            } else {
+                setError(err.message || 'Failed to load product details');
+            }
         }
     };
 
     useEffect(() => {
         const load = async () => {
             setLoading(true);
+            setSelectedImage(0);
             await fetchProduct();
             setLoading(false);
         };
@@ -204,11 +218,13 @@ const ProductDetail = () => {
     }, [id]);
 
     const handleAddToCart = () => {
+        if (!product) return;
         addToCart(product, quantity, selectedSize, selectedColor);
         alert(`Added ${product.name} to cart!`);
     };
 
     const handleBuyNow = () => {
+        if (!product) return;
         addToCart(product, quantity, selectedSize, selectedColor);
         navigate('/checkout');
     };

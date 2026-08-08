@@ -20,27 +20,41 @@ const orderSchema = new mongoose.Schema(
                 price: { type: Number, required: true },
                 size: { type: String },
                 color: { type: String },
+                variant: { type: String },
+                discount: { type: Number, default: 0 },
             },
         ],
         shippingAddress: {
-            name: { type: String, required: true },
+            fullName: { type: String, required: true },
             phone: { type: String, required: true },
+            altPhone: { type: String, default: '' },
+            houseNo: { type: String, required: true },
             street: { type: String, required: true },
+            landmark: { type: String, default: '' },
             city: { type: String, required: true },
             state: { type: String, required: true },
             zipCode: { type: String, required: true },
-            country: { type: String, required: true },
+            country: { type: String, required: true, default: 'India' },
+            type: { type: String, default: 'Home' },
         },
         paymentMethod: {
             type: String,
             required: true,
-            default: 'Cash on Delivery',
+            enum: ['ONLINE', 'COD', 'Cash on Delivery', 'Online Payment'],
+            default: 'COD',
         },
-        paymentResult: {
-            id: String,
-            status: String,
-            update_time: String,
-            email_address: String,
+        paymentStatus: {
+            type: String,
+            required: true,
+            enum: ['PAID', 'UNPAID'],
+            default: 'UNPAID',
+        },
+        paymentDetails: {
+            paymentId: { type: String, default: '' },
+            transactionId: { type: String, default: '' },
+            paidAt: { type: Date },
+            gatewayResponse: { type: Object },
+            failureReason: { type: String, default: '' },
         },
         itemsPrice: {
             type: Number,
@@ -55,6 +69,10 @@ const orderSchema = new mongoose.Schema(
         taxPrice: {
             type: Number,
             required: true,
+            default: 0.0,
+        },
+        discountPrice: {
+            type: Number,
             default: 0.0,
         },
         totalPrice: {
@@ -80,9 +98,26 @@ const orderSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'],
+            enum: [
+                'Pending',
+                'Confirmed',
+                'Packed',
+                'Shipped',
+                'Out For Delivery',
+                'Delivered',
+                'Cancelled',
+                'Returned',
+            ],
             default: 'Pending',
         },
+        trackingTimeline: [
+            {
+                status: { type: String, required: true },
+                title: { type: String, required: true },
+                description: { type: String, default: '' },
+                timestamp: { type: Date, default: Date.now },
+            },
+        ],
     },
     {
         timestamps: true,

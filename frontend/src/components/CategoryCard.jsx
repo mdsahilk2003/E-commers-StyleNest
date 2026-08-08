@@ -7,8 +7,12 @@ const CategoryCard = ({ category }) => {
                 {/* Background Image */}
                 <div className="absolute inset-0">
                     <img
-                        src={category.image || '/placeholder-category.jpg'}
+                        src={category.image || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800'}
                         alt={category.name}
+                        onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800';
+                        }}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>

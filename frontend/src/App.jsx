@@ -19,12 +19,16 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import OrderHistory from './pages/OrderHistory';
 import ProductDetail from './pages/ProductDetail';
+import OrderSuccess from './pages/OrderSuccess';
+import Addresses from './pages/Addresses';
+import Profile from './pages/Profile';
 
 // Admin Pages
 import AdminDashboard from './pages/admin/Dashboard';
 import AddProduct from './pages/admin/AddProduct';
 import EditProduct from './pages/admin/EditProduct';
 import DashboardStats from './pages/admin/DashboardStats';
+import AdminOrders from './pages/admin/AdminOrders';
 
 function App() {
     return (
@@ -65,6 +69,30 @@ function App() {
                                             </ProtectedRoute>
                                         }
                                     />
+                                    <Route
+                                        path="/order-success/:id"
+                                        element={
+                                            <ProtectedRoute>
+                                                <OrderSuccess />
+                                            </ProtectedRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/addresses"
+                                        element={
+                                            <ProtectedRoute>
+                                                <Addresses />
+                                            </ProtectedRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/profile"
+                                        element={
+                                            <ProtectedRoute>
+                                                <Profile />
+                                            </ProtectedRoute>
+                                        }
+                                    />
 
                                     {/* Admin Routes */}
                                     <Route
@@ -72,6 +100,14 @@ function App() {
                                         element={
                                             <AdminRoute>
                                                 <AdminDashboard />
+                                            </AdminRoute>
+                                        }
+                                    />
+                                    <Route
+                                        path="/admin/orders"
+                                        element={
+                                            <AdminRoute>
+                                                <AdminOrders />
                                             </AdminRoute>
                                         }
                                     />

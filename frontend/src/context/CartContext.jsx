@@ -27,6 +27,7 @@ export const CartProvider = ({ children }) => {
     }, [cartItems]);
 
     const addToCart = (product, quantity = 1, size = null, color = null) => {
+        if (!product) return;
         setCartItems((prevItems) => {
             const existingItem = prevItems.find(
                 (item) =>
@@ -48,6 +49,7 @@ export const CartProvider = ({ children }) => {
                     ...prevItems,
                     {
                         ...product,
+                        product: product,
                         quantity,
                         size,
                         color,
@@ -82,16 +84,17 @@ export const CartProvider = ({ children }) => {
 
     const getCartTotal = () => {
         return cartItems.reduce((total, item) => {
-            const price = item.discountPrice || item.price;
-            return total + price * item.quantity;
+            const price = item.discountPrice || item.price || 0;
+            return total + price * (item.quantity || 1);
         }, 0);
     };
 
     const getCartCount = () => {
-        return cartItems.reduce((count, item) => count + item.quantity, 0);
+        return cartItems.reduce((count, item) => count + (item.quantity || 1), 0);
     };
 
     const value = {
+        cart: cartItems,
         cartItems,
         addToCart,
         removeFromCart,

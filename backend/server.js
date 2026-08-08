@@ -11,6 +11,8 @@ import categoryRoutes from './routes/categories.js';
 import orderRoutes from './routes/orders.js';
 import bannerRoutes from './routes/banner.js';
 import adminRoutes from './routes/admin.js';
+import addressRoutes from './routes/address.js';
+import paymentRoutes from './routes/payment.js';
 
 // Load env vars
 dotenv.config();
@@ -40,6 +42,8 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/addresses', addressRoutes);
+app.use('/api/payment', paymentRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {

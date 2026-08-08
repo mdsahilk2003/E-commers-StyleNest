@@ -21,11 +21,26 @@ const EditProduct = () => {
     });
     const [existingImages, setExistingImages] = useState([]);
 
+    const [newPreviewUrls, setNewPreviewUrls] = useState([]);
+    const [activePreviewSrc, setActivePreviewSrc] = useState('');
+
     const categories = ['Sarees', 'Suits', 'Lehengas', 'Kurtis', 'Dress Materials', 'Accessories', 'Other'];
 
     useEffect(() => {
-        fetchProductDetails();
-    }, [id]);
+        return () => {
+            newPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+        };
+    }, []);
+
+    useEffect(() => {
+        if (newPreviewUrls.length > 0) {
+            setActivePreviewSrc(newPreviewUrls[0]);
+        } else if (existingImages.length > 0) {
+            setActivePreviewSrc(existingImages[0]);
+        } else {
+            setActivePreviewSrc('');
+        }
+    }, [existingImages, newPreviewUrls]);
 
     const fetchProductDetails = async () => {
         try {
@@ -38,7 +53,11 @@ const EditProduct = () => {
                 stock: data.stock || '',
                 images: [], // new images to upload
             });
-            setExistingImages(data.images || []);
+            const existing = data.images || [];
+            setExistingImages(existing);
+            if (existing.length > 0) {
+                setActivePreviewSrc(existing[0]);
+            }
         } catch (err) {
             console.error('Failed to fetch product:', err);
             setError('Failed to load product details.');
@@ -52,7 +71,35 @@ const EditProduct = () => {
     };
 
     const handleImageChange = (e) => {
-        setFormData({ ...formData, images: Array.from(e.target.files) });
+        const files = Array.from(e.target.files);
+        // Revoke previous URLs
+        newPreviewUrls.forEach((url) => URL.revokeObjectURL(url));
+
+        const createdUrls = files.map((file) => URL.createObjectURL(file));
+        setNewPreviewUrls(createdUrls);
+        setFormData({ ...formData, images: files });
+        if (createdUrls.length > 0) {
+            setActivePreviewSrc(createdUrls[0]);
+        }
+    };
+
+    const handleRemoveNewImage = (indexToRemove) => {
+        URL.revokeObjectURL(newPreviewUrls[indexToRemove]);
+        const updatedPreviews = newPreviewUrls.filter((_, idx) => idx !== indexToRemove);
+        const updatedFiles = formData.images.filter((_, idx) => idx !== indexToRemove);
+
+        setNewPreviewUrls(updatedPreviews);
+        setFormData({ ...formData, images: updatedFiles });
+
+        if (activePreviewSrc === newPreviewUrls[indexToRemove]) {
+            if (updatedPreviews.length > 0) {
+                setActivePreviewSrc(updatedPreviews[0]);
+            } else if (existingImages.length > 0) {
+                setActivePreviewSrc(existingImages[0]);
+            } else {
+                setActivePreviewSrc('');
+            }
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -146,15 +193,38 @@ const EditProduct = () => {
                             </div>
                         </div>
 
+                        {/* Interactive Image Preview Display */}
+                        {activePreviewSrc && (
+                            <div className="space-y-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <label className="block text-sm font-medium text-navy-500">Selected Image Preview</label>
+                                <div className="relative h-64 md:h-80 w-full rounded-lg overflow-hidden border border-gray-300 bg-white flex items-center justify-center">
+                                    <img
+                                        src={activePreviewSrc}
+                                        alt="Active preview"
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
                         {/* Existing Images Showcase */}
                         {existingImages.length > 0 && (
                             <div>
                                 <label className="block text-sm font-medium text-navy-500 mb-2">Current Product Images</label>
                                 <div className="flex flex-wrap gap-4">
                                     {existingImages.map((img, idx) => (
-                                        <div key={idx} className="w-24 h-24 rounded border overflow-hidden relative group">
+                                        <button
+                                            key={idx}
+                                            type="button"
+                                            onClick={() => setActivePreviewSrc(img)}
+                                            className={`w-24 h-24 rounded border-2 overflow-hidden relative transition-all ${
+                                                activePreviewSrc === img
+                                                    ? 'border-gold-500 ring-2 ring-gold-500/50 scale-105'
+                                                    : 'border-gray-200 hover:border-navy-500'
+                                            }`}
+                                        >
                                             <img src={img} alt={`Product ${idx}`} className="w-full h-full object-cover" />
-                                        </div>
+                                        </button>
                                     ))}
                                 </div>
                             </div>
@@ -165,6 +235,40 @@ const EditProduct = () => {
                             <input type="file" accept="image/*" multiple onChange={handleImageChange} className="input-field" />
                             <p className="text-xs text-gray-500 mt-1">Note: Uploading new images will replace the existing images for this product.</p>
                         </div>
+
+                        {/* New Images Preview Showcase */}
+                        {newPreviewUrls.length > 0 && (
+                            <div>
+                                <label className="block text-sm font-medium text-navy-500 mb-2">Newly Selected Images Preview</label>
+                                <div className="flex flex-wrap gap-4">
+                                    {newPreviewUrls.map((url, idx) => (
+                                        <div key={idx} className="relative group">
+                                            <button
+                                                type="button"
+                                                onClick={() => setActivePreviewSrc(url)}
+                                                className={`w-24 h-24 rounded border-2 overflow-hidden transition-all ${
+                                                    activePreviewSrc === url
+                                                        ? 'border-gold-500 ring-2 ring-gold-500/50 scale-105'
+                                                        : 'border-gray-200 hover:border-navy-500'
+                                                }`}
+                                            >
+                                                <img src={url} alt={`New upload ${idx + 1}`} className="w-full h-full object-cover" />
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleRemoveNewImage(idx)}
+                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 text-xs hover:bg-red-600 shadow-md transition-colors"
+                                                title="Remove image"
+                                            >
+                                                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
 
                         <div className="flex gap-4">
                             <button type="button" onClick={() => navigate('/admin/dashboard')} className="btn-outline flex-1">Cancel</button>

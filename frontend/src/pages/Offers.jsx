@@ -106,7 +106,7 @@ const Offers = () => {
                         <h2 className="text-2xl md:text-3xl font-bold text-navy-500 mb-6">
                             Products on Sale
                         </h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
                             {discountedProducts.map((product) => (
                                 <ProductCard key={product._id} product={product} />
                             ))}

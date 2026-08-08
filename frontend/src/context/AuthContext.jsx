@@ -24,12 +24,53 @@ export const AuthProvider = ({ children }) => {
         setLoading(false);
     }, []);
 
+    const sendOtp = async (phone) => {
+        try {
+            const { data } = await api.post('/auth/send-otp', { phone });
+            return { success: true, otp: data.otp, message: data.message };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Failed to send OTP',
+            };
+        }
+    };
+
+    const verifyOtp = async (phone, otp, name) => {
+        try {
+            const { data } = await api.post('/auth/verify-otp', { phone, otp, name });
+            setUser(data);
+            localStorage.setItem('user', JSON.stringify(data));
+            return { success: true, user: data };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'OTP verification failed',
+            };
+        }
+    };
+
+    const googleLogin = async (payload) => {
+        try {
+            const body = typeof payload === 'string' ? { credential: payload } : payload;
+            const { data } = await api.post('/auth/google', body);
+            setUser(data);
+            localStorage.setItem('user', JSON.stringify(data));
+            return { success: true, user: data };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.response?.data?.message || 'Google login failed',
+            };
+        }
+    };
+
     const login = async (email, password) => {
         try {
             const { data } = await api.post('/auth/login', { email, password });
             setUser(data);
             localStorage.setItem('user', JSON.stringify(data));
-            return { success: true };
+            return { success: true, user: data };
         } catch (error) {
             return {
                 success: false,
@@ -43,7 +84,7 @@ export const AuthProvider = ({ children }) => {
             const { data } = await api.post('/auth/register', { name, email, password });
             setUser(data);
             localStorage.setItem('user', JSON.stringify(data));
-            return { success: true };
+            return { success: true, user: data };
         } catch (error) {
             return {
                 success: false,
@@ -65,6 +106,9 @@ export const AuthProvider = ({ children }) => {
     const value = {
         user,
         loading,
+        sendOtp,
+        verifyOtp,
+        googleLogin,
         login,
         register,
         logout,

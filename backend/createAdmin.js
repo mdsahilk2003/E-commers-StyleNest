@@ -1,39 +1,41 @@
-// Script to create admin user in database
+// Script to create/update admin user in database
 // Run this file once: node createAdmin.js
 
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-require('dotenv').config();
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import User from './models/User.js';
 
-const User = require('./models/User');
+dotenv.config();
 
 const createAdmin = async () => {
     try {
-        // Connect to MongoDB
         await mongoose.connect(process.env.MONGODB_URI);
         console.log('✅ Connected to MongoDB');
 
-        // Check if admin already exists
-        const existingAdmin = await User.findOne({ email: 'admin@gmail.com' });
+        let admin = await User.findOne({ $or: [{ email: 'admin@gmail.com' }, { phone: '9006659008' }] });
 
-        if (existingAdmin) {
-            console.log('⚠️  Admin user already exists!');
-            console.log('Email:', existingAdmin.email);
-            console.log('Role:', existingAdmin.role);
-            process.exit(0);
+        if (admin) {
+            admin.name = 'Admin';
+            admin.email = 'admin@gmail.com';
+            admin.phone = '9006659008';
+            admin.password = 'Sahil@725492';
+            admin.role = 'admin';
+            await admin.save();
+            console.log('✅ Admin user updated in database!');
+        } else {
+            admin = await User.create({
+                name: 'Admin',
+                email: 'admin@gmail.com',
+                phone: '9006659008',
+                password: 'Sahil@725492',
+                role: 'admin',
+            });
+            console.log('✅ Admin user created in database!');
         }
 
-        // Create admin user
-        const admin = await User.create({
-            name: 'Admin',
-            email: 'admin@gmail.com',
-            password: 'Admin@000', // Will be hashed by User model
-            role: 'admin',
-        });
-
-        console.log('✅ Admin user created successfully!');
+        console.log('📱 Phone: 9006659008');
         console.log('📧 Email: admin@gmail.com');
-        console.log('🔑 Password: Admin@000');
+        console.log('🔑 Password: Sahil@725492');
         console.log('👤 Role: admin');
 
         process.exit(0);
@@ -44,3 +46,4 @@ const createAdmin = async () => {
 };
 
 createAdmin();
+
