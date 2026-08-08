@@ -30,48 +30,55 @@ const Cart = () => {
                     {/* Cart Items */}
                     <div className="lg:col-span-2 space-y-4">
                         {cartItems.map((item) => (
-                            <div key={item.cartId} className="bg-white rounded-lg shadow-md p-6">
-                                <div className="flex gap-4">
-                                    {/* Product Image */}
-                                    <Link to={`/product/${item._id}`} className="flex-shrink-0">
-                                        <img
-                                            src={item.images && item.images[0] ? item.images[0] : 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'}
-                                            alt={item.name}
-                                            className="w-24 h-24 object-cover rounded-lg"
-                                        />
-                                    </Link>
-
-                                    {/* Product Info */}
-                                    <div className="flex-1">
-                                        <Link to={`/product/${item._id}`}>
-                                            <h3 className="text-lg font-semibold text-navy-500 hover:text-gold-500 transition-colors mb-2">
-                                                {item.name}
-                                            </h3>
+                            <div key={item.cartId} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 transition-all hover:shadow-md">
+                                <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                                    {/* Product Image & Info */}
+                                    <div className="flex gap-3 sm:gap-4 items-start flex-1 min-w-0 w-full sm:w-auto">
+                                        <Link to={`/product/${item._id}`} className="flex-shrink-0">
+                                            <img
+                                                src={item.images && item.images[0] ? item.images[0] : 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60'}
+                                                alt={item.name}
+                                                className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl border border-gray-100"
+                                            />
                                         </Link>
 
-                                        <div className="text-sm text-gray-600 space-y-1 mb-3">
-                                            {item.size && <p>Size: {item.size}</p>}
-                                            {item.color && <p>Color: {item.color}</p>}
-                                            <p className="text-lg font-bold text-navy-500">
-                                                ₹{(item.discountPrice || item.price).toFixed(2)}
-                                            </p>
-                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <Link to={`/product/${item._id}`}>
+                                                <h3 className="text-base sm:text-lg font-bold text-navy-500 hover:text-gold-600 transition-colors truncate">
+                                                    {item.name}
+                                                </h3>
+                                            </Link>
 
-                                        {/* Quantity Controls */}
-                                        <div className="flex items-center gap-4">
-                                            <div className="flex items-center border border-gray-300 rounded-lg">
+                                            <div className="text-xs text-gray-500 space-y-0.5 mt-1">
+                                                {item.size && <span className="inline-block bg-gray-100 px-2 py-0.5 rounded text-[11px] font-medium mr-2">Size: {item.size}</span>}
+                                                {item.color && <span className="inline-block bg-gray-100 px-2 py-0.5 rounded text-[11px] font-medium">Color: {item.color}</span>}
+                                            </div>
+
+                                            <div className="mt-2 flex items-center gap-2">
+                                                <span className="text-xs font-semibold text-gray-500">Price:</span>
+                                                <span className="text-sm sm:text-base font-bold text-navy-500">
+                                                    ₹{(item.discountPrice || item.price).toFixed(2)}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Quantity Controls & Item Total */}
+                                    <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex items-center border border-gray-200 rounded-xl bg-gray-50">
                                                 <button
                                                     onClick={() => updateQuantity(item.cartId, item.quantity - 1)}
-                                                    className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                                                    className="px-2.5 py-1 text-gray-600 hover:bg-gray-200 rounded-l-xl transition-colors font-bold text-sm"
                                                 >
                                                     -
                                                 </button>
-                                                <span className="px-4 py-1 border-x border-gray-300">
+                                                <span className="px-3 py-1 text-sm font-bold text-navy-500 border-x border-gray-200 bg-white">
                                                     {item.quantity}
                                                 </span>
                                                 <button
                                                     onClick={() => updateQuantity(item.cartId, item.quantity + 1)}
-                                                    className="px-3 py-1 hover:bg-gray-100 transition-colors"
+                                                    className="px-2.5 py-1 text-gray-600 hover:bg-gray-200 rounded-r-xl transition-colors font-bold text-sm"
                                                 >
                                                     +
                                                 </button>
@@ -79,18 +86,18 @@ const Cart = () => {
 
                                             <button
                                                 onClick={() => removeFromCart(item.cartId)}
-                                                className="text-red-500 hover:text-red-600 font-medium"
+                                                className="text-xs text-red-500 hover:text-red-600 font-semibold px-2 py-1 rounded-lg hover:bg-red-50 transition-colors"
                                             >
                                                 Remove
                                             </button>
                                         </div>
-                                    </div>
 
-                                    {/* Item Total */}
-                                    <div className="text-right">
-                                        <p className="text-xl font-bold text-navy-500">
-                                            ₹{((item.discountPrice || item.price) * item.quantity).toFixed(2)}
-                                        </p>
+                                        <div className="text-right pl-2">
+                                            <span className="text-[10px] text-gray-400 uppercase font-bold block sm:hidden">Total</span>
+                                            <p className="text-lg sm:text-xl font-extrabold text-navy-500">
+                                                ₹{((item.discountPrice || item.price) * item.quantity).toFixed(2)}
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

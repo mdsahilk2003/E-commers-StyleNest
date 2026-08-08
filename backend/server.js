@@ -27,10 +27,21 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS middleware
-const frontendUrl = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.trim() : 'http://localhost:5173';
 app.use(
     cors({
-        origin: frontendUrl,
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
+            const frontendUrl = process.env.FRONTEND_URL ? process.env.FRONTEND_URL.trim() : '';
+            if (
+                origin === frontendUrl ||
+                origin.endsWith('.vercel.app') ||
+                origin.includes('localhost') ||
+                process.env.NODE_ENV !== 'production'
+            ) {
+                return callback(null, true);
+            }
+            return callback(null, true);
+        },
         credentials: true,
     })
 );
