@@ -140,44 +140,7 @@ const AdminDashboard = () => {
                     </div>
                 </div>
 
-                {/* Recent Orders */}
-                {stats?.recentOrders && stats.recentOrders.length > 0 && (
-                    <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                        <h2 className="text-2xl font-bold text-navy-500 mb-6">Recent Orders</h2>
-                        <div className="overflow-x-auto">
-                            <table className="w-full">
-                                <thead>
-                                    <tr className="border-b border-gray-200">
-                                        <th className="text-left py-3 px-4 font-semibold text-navy-500">Order ID</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-navy-500">Customer</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-navy-500">Date</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-navy-500">Total</th>
-                                        <th className="text-left py-3 px-4 font-semibold text-navy-500">Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {stats.recentOrders.map((order) => (
-                                        <tr key={order._id} className="border-b border-gray-100 hover:bg-gray-50">
-                                            <td className="py-3 px-4 text-sm">{order._id.slice(-8)}</td>
-                                            <td className="py-3 px-4 text-sm">{order.user?.name}</td>
-                                            <td className="py-3 px-4 text-sm">
-                                                {new Date(order.createdAt).toLocaleDateString()}
-                                            </td>
-                                            <td className="py-3 px-4 text-sm font-semibold">
-                                                ₹{order.totalPrice.toFixed(2)}
-                                            </td>
-                                            <td className="py-3 px-4">
-                                                <span className="badge bg-blue-100 text-blue-800">
-                                                    {order.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                )}
+
                               {/* Manage Products */}
                 {products && products.length > 0 && (
                     <div className="bg-white rounded-lg shadow-md p-6">
