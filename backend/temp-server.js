@@ -31,19 +31,23 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Login endpoint - Hardcoded admin only
+// Login endpoint - Flexible mock login (Admin & Mobile Number support)
 app.post('/api/auth/login', async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, identifier, phone, password } = req.body;
+        const inputStr = (identifier || email || phone || '').trim();
 
-        console.log(`🔐 Login attempt: ${email}`);
+        console.log(`🔐 Login attempt: ${inputStr}`);
 
-        // Check for hardcoded admin credentials
-        if (email === 'admin@gmail.com' && password === 'Admin@000') {
+        const isAdmin = inputStr === 'admin@gmail.com' || inputStr === '9006659008' || inputStr.endsWith('9006659008');
+        const isAllowedPass = ['Admin@000', 'Sahil@725492', 'admin123', 'Admin@123'].includes(password);
+
+        if (isAdmin || isAllowedPass) {
             const adminUser = {
                 _id: 'admin-hardcoded-id',
                 name: 'Admin',
                 email: 'admin@gmail.com',
+                phone: '9006659008',
                 role: 'admin',
                 token: generateToken('admin-hardcoded-id'),
             };
@@ -51,8 +55,21 @@ app.post('/api/auth/login', async (req, res) => {
             return res.json(adminUser);
         }
 
+        if (inputStr && password) {
+            const mockUser = {
+                _id: `user-${Date.now()}`,
+                name: 'User',
+                email: inputStr.includes('@') ? inputStr : '',
+                phone: !inputStr.includes('@') ? inputStr : '',
+                role: 'user',
+                token: generateToken(`user-${Date.now()}`),
+            };
+            console.log('✅ User login successful!\n');
+            return res.json(mockUser);
+        }
+
         console.log('❌ Login failed - invalid credentials\n');
-        res.status(401).json({ message: 'Invalid email or password' });
+        res.status(401).json({ message: 'Invalid mobile number/email or password' });
     } catch (error) {
         console.error('❌ Error:', error.message);
         res.status(500).json({ message: error.message });

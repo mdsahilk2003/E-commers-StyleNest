@@ -46,7 +46,7 @@ app.use(
     })
 );
 
-// API Routes (supports both /api/ route and direct serverless route)
+// API Routes (supports both /api/ prefix and serverless rewrites)
 app.use(['/api/auth', '/auth'], authRoutes);
 app.use(['/api/products', '/products'], productRoutes);
 app.use(['/api/categories', '/categories'], categoryRoutes);
