@@ -56,15 +56,19 @@ export const getProducts = async (req, res) => {
 // @access  Public
 export const getProductById = async (req, res) => {
     try {
-        const product = await Product.findById(req.params.id);
-
+        const { id } = req.params;
+        let product = null;
+        if (id && id.match(/^[0-9a-fA-F]{24}$/)) {
+            product = await Product.findById(id);
+        }
         if (product) {
-            res.json(product);
+            return res.json(product);
         } else {
-            res.status(404).json({ message: 'Product not found' });
+            return res.status(404).json({ message: 'Product not found' });
         }
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        console.error('getProductById error:', error);
+        res.status(500).json({ message: error.message || 'Error fetching product' });
     }
 };
 

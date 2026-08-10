@@ -185,24 +185,39 @@ const ProductDetail = () => {
     const fetchProduct = async () => {
         try {
             setError(null);
+
+            // 1. Check in context products list (memory) with loose string matching
+            if (contextProducts && contextProducts.length > 0) {
+                const foundInContext = contextProducts.find((p) => String(p._id) === String(id));
+                if (foundInContext) {
+                    setProduct(foundInContext);
+                    if (foundInContext.sizes && foundInContext.sizes.length > 0) setSelectedSize(foundInContext.sizes[0]);
+                    if (foundInContext.colors && foundInContext.colors.length > 0) setSelectedColor(foundInContext.colors[0]);
+                    return;
+                }
+            }
+
+            // 2. Fetch from Backend API
             const data = await getProductById(id);
             if (data && (data._id || data.name)) {
                 setProduct(data);
-                if (data.sizes && data.sizes.length > 0 && !selectedSize) setSelectedSize(data.sizes[0]);
-                if (data.colors && data.colors.length > 0 && !selectedColor) setSelectedColor(data.colors[0]);
+                if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
+                if (data.colors && data.colors.length > 0) setSelectedColor(data.colors[0]);
                 return;
             }
             throw new Error('Product not found on server');
         } catch (err) {
-            console.error('Failed to fetch product from API:', err);
-            // Fallback check against sample products array or default fallback product
-            const sample = sampleProducts.find((p) => p._id === id) || sampleProducts[0];
+            console.warn('Backend API product fetch notice:', err.message);
+
+            // 3. Fallback check against static sample products using string matching
+            const sample = sampleProducts.find((p) => String(p._id) === String(id));
             if (sample) {
                 setProduct(sample);
-                if (sample.sizes && sample.sizes.length > 0 && !selectedSize) setSelectedSize(sample.sizes[0]);
-                if (sample.colors && sample.colors.length > 0 && !selectedColor) setSelectedColor(sample.colors[0]);
+                if (sample.sizes && sample.sizes.length > 0) setSelectedSize(sample.sizes[0]);
+                if (sample.colors && sample.colors.length > 0) setSelectedColor(sample.colors[0]);
             } else {
-                setError(err.message || 'Failed to load product details');
+                setProduct(null);
+                setError('Product not found');
             }
         }
     };
