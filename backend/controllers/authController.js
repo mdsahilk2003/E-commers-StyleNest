@@ -282,32 +282,46 @@ export const login = async (req, res) => {
             }
         }
 
-        // Special Admin bypass check for 9006659008 / admin@gmail.com with Sahil@725492
-        if ((cleanPhone === '9006659008' || inputStr === 'admin@gmail.com') && password === 'Sahil@725492') {
-            let adminUser = await User.findOne({ $or: [{ phone: '9006659008' }, { email: 'admin@gmail.com' }] }).select('+password');
+        // Special Admin check for 9006659008 / admin@gmail.com
+        const isAdminAccount = cleanPhone === '9006659008' || inputStr.toLowerCase() === 'admin@gmail.com';
+
+        if (isAdminAccount) {
+            let adminUser = await User.findOne({
+                $or: [{ phone: '9006659008' }, { email: 'admin@gmail.com' }],
+            }).select('+password');
+
             if (!adminUser) {
                 adminUser = await User.create({
                     name: 'Admin',
                     email: 'admin@gmail.com',
                     phone: '9006659008',
-                    password: 'Sahil@725492',
+                    password: password || 'Sahil@725492',
                     role: 'admin',
                 });
-            } else {
-                if (adminUser.role !== 'admin') {
-                    adminUser.role = 'admin';
-                    await adminUser.save();
-                }
             }
 
-            return res.json({
-                _id: adminUser._id,
-                name: adminUser.name,
-                email: adminUser.email || 'admin@gmail.com',
-                phone: adminUser.phone || '9006659008',
-                role: 'admin',
-                token: generateToken(adminUser._id),
-            });
+            // Allow login if password is Sahil@725492 OR matches existing DB password OR set password if missing
+            const isDefaultPass = password === 'Sahil@725492';
+            const isMatch = adminUser.password ? await adminUser.comparePassword(password) : true;
+
+            if (isDefaultPass || isMatch) {
+                if (adminUser.role !== 'admin') {
+                    adminUser.role = 'admin';
+                }
+                if (!adminUser.password || isDefaultPass) {
+                    adminUser.password = password || 'Sahil@725492';
+                }
+                await adminUser.save();
+
+                return res.json({
+                    _id: adminUser._id,
+                    name: adminUser.name,
+                    email: adminUser.email || 'admin@gmail.com',
+                    phone: adminUser.phone || '9006659008',
+                    role: 'admin',
+                    token: generateToken(adminUser._id),
+                });
+            }
         }
 
         // Find user by phone OR email
@@ -315,21 +329,28 @@ export const login = async (req, res) => {
             $or: [{ phone: cleanPhone }, { email: inputStr.toLowerCase() }],
         }).select('+password');
 
-        if (user && (await user.comparePassword(password))) {
-            return res.json({
-                _id: user._id,
-                name: user.name,
-                email: user.email || '',
-                phone: user.phone || '',
-                role: user.role,
-                token: generateToken(user._id),
-            });
-        } else {
-            res.status(401).json({ message: 'Invalid mobile number/email or password' });
+        if (user) {
+            const isMatch = await user.comparePassword(password);
+            if (isMatch || (isAdminAccount && password === 'Sahil@725492')) {
+                if (isAdminAccount && user.role !== 'admin') {
+                    user.role = 'admin';
+                    await user.save();
+                }
+                return res.json({
+                    _id: user._id,
+                    name: user.name,
+                    email: user.email || '',
+                    phone: user.phone || '',
+                    role: user.role,
+                    token: generateToken(user._id),
+                });
+            }
         }
+
+        res.status(401).json({ message: 'Invalid mobile number/email or password' });
     } catch (error) {
         console.error('Login error:', error);
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ message: error.message || 'Login failed' });
     }
 };
 
