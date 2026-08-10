@@ -46,18 +46,18 @@ app.use(
     })
 );
 
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/banners', bannerRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/addresses', addressRoutes);
-app.use('/api/payment', paymentRoutes);
+// API Routes (supports both /api/ route and direct serverless route)
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/products', '/products'], productRoutes);
+app.use(['/api/categories', '/categories'], categoryRoutes);
+app.use(['/api/orders', '/orders'], orderRoutes);
+app.use(['/api/banners', '/banners'], bannerRoutes);
+app.use(['/api/admin', '/admin'], adminRoutes);
+app.use(['/api/addresses', '/addresses'], addressRoutes);
+app.use(['/api/payment', '/payment'], paymentRoutes);
 
 // Health check route
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health', '/'], (req, res) => {
     res.json({ message: 'StyleNest API is running!' });
 });
 
