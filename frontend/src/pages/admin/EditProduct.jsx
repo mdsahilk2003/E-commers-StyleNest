@@ -66,6 +66,12 @@ const EditProduct = () => {
         }
     };
 
+    useEffect(() => {
+        if (id) {
+            fetchProductDetails();
+        }
+    }, [id]);
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
