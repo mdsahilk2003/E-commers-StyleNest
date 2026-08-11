@@ -9,7 +9,7 @@ import api from '../utils/api';
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { getProductById } = useProducts();
+    const { getProductById, products: contextProducts } = useProducts();
     const { addToCart } = useCart();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -193,28 +193,33 @@ const ProductDetail = () => {
                     setProduct(foundInContext);
                     if (foundInContext.sizes && foundInContext.sizes.length > 0) setSelectedSize(foundInContext.sizes[0]);
                     if (foundInContext.colors && foundInContext.colors.length > 0) setSelectedColor(foundInContext.colors[0]);
-                    return;
                 }
             }
 
-            // 2. Fetch from Backend API
+            // 2. Fetch fresh data (with full reviews & details) from Backend API
             const data = await getProductById(id);
             if (data && (data._id || data.name)) {
                 setProduct(data);
-                if (data.sizes && data.sizes.length > 0) setSelectedSize(data.sizes[0]);
-                if (data.colors && data.colors.length > 0) setSelectedColor(data.colors[0]);
+                if (data.sizes && data.sizes.length > 0) setSelectedSize((prev) => prev || data.sizes[0]);
+                if (data.colors && data.colors.length > 0) setSelectedColor((prev) => prev || data.colors[0]);
                 return;
             }
-            throw new Error('Product not found on server');
+            if (!contextProducts?.some((p) => String(p._id) === String(id))) {
+                throw new Error('Product not found on server');
+            }
         } catch (err) {
             console.warn('Backend API product fetch notice:', err.message);
 
-            // 3. Fallback check against static sample products using string matching
+            // 3. Fallback check against context products or static sample products using string matching
+            const foundInContext = contextProducts?.find((p) => String(p._id) === String(id));
             const sample = sampleProducts.find((p) => String(p._id) === String(id));
-            if (sample) {
-                setProduct(sample);
-                if (sample.sizes && sample.sizes.length > 0) setSelectedSize(sample.sizes[0]);
-                if (sample.colors && sample.colors.length > 0) setSelectedColor(sample.colors[0]);
+            const fallback = foundInContext || sample;
+
+            if (fallback) {
+                setProduct(fallback);
+                if (fallback.sizes && fallback.sizes.length > 0) setSelectedSize((prev) => prev || fallback.sizes[0]);
+                if (fallback.colors && fallback.colors.length > 0) setSelectedColor((prev) => prev || fallback.colors[0]);
+                setError(null);
             } else {
                 setProduct(null);
                 setError('Product not found');
