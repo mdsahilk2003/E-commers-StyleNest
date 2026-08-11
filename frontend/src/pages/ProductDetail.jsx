@@ -9,7 +9,7 @@ import api from '../utils/api';
 const ProductDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { getProductById, products: contextProducts } = useProducts();
+    const { getProductById, products: memoryProducts } = useProducts();
     const { addToCart } = useCart();
     const [product, setProduct] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -187,8 +187,8 @@ const ProductDetail = () => {
             setError(null);
 
             // 1. Check in context products list (memory) with loose string matching
-            if (contextProducts && contextProducts.length > 0) {
-                const foundInContext = contextProducts.find((p) => String(p._id) === String(id));
+            if (memoryProducts && memoryProducts.length > 0) {
+                const foundInContext = memoryProducts.find((p) => String(p._id) === String(id));
                 if (foundInContext) {
                     setProduct(foundInContext);
                     if (foundInContext.sizes && foundInContext.sizes.length > 0) setSelectedSize(foundInContext.sizes[0]);
@@ -204,14 +204,14 @@ const ProductDetail = () => {
                 if (data.colors && data.colors.length > 0) setSelectedColor((prev) => prev || data.colors[0]);
                 return;
             }
-            if (!contextProducts?.some((p) => String(p._id) === String(id))) {
+            if (!memoryProducts?.some((p) => String(p._id) === String(id))) {
                 throw new Error('Product not found on server');
             }
         } catch (err) {
             console.warn('Backend API product fetch notice:', err.message);
 
             // 3. Fallback check against context products or static sample products using string matching
-            const foundInContext = contextProducts?.find((p) => String(p._id) === String(id));
+            const foundInContext = memoryProducts?.find((p) => String(p._id) === String(id));
             const sample = sampleProducts.find((p) => String(p._id) === String(id));
             const fallback = foundInContext || sample;
 
