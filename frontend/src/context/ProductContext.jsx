@@ -62,7 +62,7 @@ export const ProductProvider = ({ children }) => {
         },
         {
             _id: '4',
-            name: 'Formal Shirt',
+            name: 'Formal Men Shirt',
             description: 'Elegant formal shirt for office and events. Wrinkle-free fabric.',
             price: 1799,
             discountPrice: 1299,
@@ -73,6 +73,90 @@ export const ProductProvider = ({ children }) => {
             category: 'Shirts',
             isNewArrival: true,
             isFeatured: false,
+        },
+        {
+            _id: '5',
+            name: 'Royal Silk Saree',
+            description: 'Handwoven traditional Banarasi silk saree with ornate Zari border detail.',
+            price: 5999,
+            discountPrice: 4499,
+            images: ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=800'],
+            sizes: ['Free Size'],
+            colors: ['Red', 'Gold', 'Maroon'],
+            stock: 20,
+            category: 'Sarees',
+            isNewArrival: true,
+            isFeatured: true,
+        },
+        {
+            _id: '6',
+            name: 'Designer Anarkali Suit',
+            description: 'Stunning georgette Anarkali suit set with heavy Dupatta embroidery.',
+            price: 4999,
+            discountPrice: 3499,
+            images: ['https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=800'],
+            sizes: ['M', 'L', 'XL'],
+            colors: ['Blue', 'Pink', 'Green'],
+            stock: 18,
+            category: 'Suits',
+            isNewArrival: true,
+            isFeatured: true,
+        },
+        {
+            _id: '7',
+            name: 'Bridal Velvet Lehenga',
+            description: 'Exquisite velvet bridal lehenga choli set featuring intricate Zardosi work.',
+            price: 12999,
+            discountPrice: 9999,
+            images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800'],
+            sizes: ['Semi-Stitched'],
+            colors: ['Red', 'Deep Pink'],
+            stock: 10,
+            category: 'Lehengas',
+            isNewArrival: true,
+            isFeatured: true,
+        },
+        {
+            _id: '8',
+            name: 'Cotton Printed Kurti',
+            description: 'Comfortable 100% pure cotton straight kurti for daily summer wear.',
+            price: 1199,
+            discountPrice: 799,
+            images: ['https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?w=800'],
+            sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+            colors: ['Yellow', 'White'],
+            stock: 45,
+            category: 'Kurtis',
+            isNewArrival: false,
+            isFeatured: true,
+        },
+        {
+            _id: '9',
+            name: 'Unstitched Dress Material',
+            description: 'Premium Chanderi cotton unstitched suit material set with chiffon dupatta.',
+            price: 2199,
+            discountPrice: 1599,
+            images: ['https://images.unsplash.com/photo-1609357605129-26f69add5d6e?w=800'],
+            sizes: ['Unstitched'],
+            colors: ['Purple', 'Peach'],
+            stock: 30,
+            category: 'Dress Materials',
+            isNewArrival: true,
+            isFeatured: false,
+        },
+        {
+            _id: '10',
+            name: 'Leather Wallet & Belt Set',
+            description: 'Genuine leather gift combo set containing classic bi-fold wallet and formal belt.',
+            price: 1999,
+            discountPrice: 1399,
+            images: ['https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800'],
+            sizes: ['One Size'],
+            colors: ['Brown', 'Black'],
+            stock: 50,
+            category: 'Accessories',
+            isNewArrival: false,
+            isFeatured: true,
         },
     ];
 
@@ -85,12 +169,42 @@ export const ProductProvider = ({ children }) => {
             if (Array.isArray(data) && data.length > 0) {
                 setProducts(data);
             } else {
-                setProducts(staticProducts);
+                let filtered = [...staticProducts];
+                if (filters.category) {
+                    filtered = filtered.filter(p => 
+                        p.category === filters.category || 
+                        (typeof p.category === 'object' && p.category?.name === filters.category) ||
+                        (typeof p.category === 'object' && p.category?._id === filters.category)
+                    );
+                }
+                if (filters.search) {
+                    const s = filters.search.toLowerCase();
+                    filtered = filtered.filter(p => 
+                        p.name.toLowerCase().includes(s) || 
+                        p.description.toLowerCase().includes(s)
+                    );
+                }
+                setProducts(filtered.length > 0 ? filtered : staticProducts);
             }
         } catch (err) {
             console.warn('Backend API products notice, using sample fallback:', err.message);
             setError(null);
-            setProducts(staticProducts);
+            let filtered = [...staticProducts];
+            if (filters.category) {
+                filtered = filtered.filter(p => 
+                    p.category === filters.category || 
+                    (typeof p.category === 'object' && p.category?.name === filters.category) ||
+                    (typeof p.category === 'object' && p.category?._id === filters.category)
+                );
+            }
+            if (filters.search) {
+                const s = filters.search.toLowerCase();
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(s) || 
+                    p.description.toLowerCase().includes(s)
+                );
+            }
+            setProducts(filtered.length > 0 ? filtered : staticProducts);
         } finally {
             setLoading(false);
         }
