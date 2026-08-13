@@ -19,17 +19,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
+let isConnected = false;
+
 app.use(async (req, res, next) => {
     try {
-        if (mongoose.connection.readyState < 1) {
+        if (!isConnected && mongoose.connection.readyState < 1) {
             await mongoose.connect(MONGODB_URI.trim(), {
                 serverSelectionTimeoutMS: 5000,
             });
+            isConnected = true;
         }
         next();
     } catch (err) {
-        console.error('MongoDB connection error:', err);
-        return res.status(500).json({ message: 'Database connection error', error: err.message });
+        console.error('MongoDB connection error in serverless function:', err.message);
+        next();
     }
 });
 
