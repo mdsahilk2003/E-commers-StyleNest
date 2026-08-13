@@ -22,7 +22,9 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(async (req, res, next) => {
     try {
         if (mongoose.connection.readyState < 1) {
-            await mongoose.connect(MONGODB_URI.trim());
+            await mongoose.connect(MONGODB_URI.trim(), {
+                serverSelectionTimeoutMS: 5000,
+            });
         }
         next();
     } catch (err) {
