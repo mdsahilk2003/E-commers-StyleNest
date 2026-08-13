@@ -12,8 +12,8 @@ export const protect = async (req, res, next) => {
             // Get token from header
             token = req.headers.authorization.split(' ')[1];
 
-            // Verify token
-            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const secret = process.env.JWT_SECRET || 'secret123';
+            const decoded = jwt.verify(token, secret);
 
             // Check if this is the hardcoded admin
             if (decoded.id === 'admin-hardcoded-id') {
