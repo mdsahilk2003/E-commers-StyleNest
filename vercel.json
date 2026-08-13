@@ -1,11 +1,14 @@
 {
-  "framework": "vite",
-  "buildCommand": "npm run build --prefix frontend",
-  "outputDirectory": "frontend/dist",
+  "buildCommand": "npm run build --prefix frontend && node -e \"import('fs').then(fs => fs.cpSync('frontend/dist', './dist', {recursive: true}))\"",
+  "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://backend-five-khaki-22.vercel.app/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://backend-five-khaki-22.vercel.app/api/:path*"
+    },
+    {
+      "source": "/api",
+      "destination": "https://backend-five-khaki-22.vercel.app/api"
     },
     {
       "source": "/(.*)",
