@@ -1,18 +1,17 @@
 {
-  "version": 2,
   "buildCommand": "npm run build --prefix frontend",
   "outputDirectory": "frontend/dist",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/[...path].js"
+      "source": "/api/:path*",
+      "destination": "https://backend-five-khaki-22.vercel.app/api/:path*"
     },
     {
       "source": "/api",
-      "destination": "/api/index.js"
+      "destination": "https://backend-five-khaki-22.vercel.app/api"
     },
     {
-      "source": "/((?!api/).*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]

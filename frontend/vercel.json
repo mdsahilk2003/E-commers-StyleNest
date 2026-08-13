@@ -1,5 +1,16 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/:path*",
+      "destination": "https://backend-five-khaki-22.vercel.app/api/:path*"
+    },
+    {
+      "source": "/api",
+      "destination": "https://backend-five-khaki-22.vercel.app/api"
+    },
+    {
+      "source": "/:path*",
+      "destination": "/index.html"
+    }
   ]
 }
