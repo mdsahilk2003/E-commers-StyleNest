@@ -1,12 +1,5 @@
 {
   "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://backend-five-khaki-22.vercel.app/api/:path*"
-    },
-    {
-      "source": "/:path*",
-      "destination": "/index.html"
-    }
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
