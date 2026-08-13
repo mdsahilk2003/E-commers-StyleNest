@@ -32,13 +32,11 @@ app.use(['/api/admin', '/admin'], adminRoutes);
 app.use(['/api/addresses', '/addresses'], addressRoutes);
 app.use(['/api/payment', '/payment'], paymentRoutes);
 
-app.get(['/api/health', '/health', '/api'], (req, res) => {
+app.get(['/api/health', '/health', '/api', '/'], (req, res) => {
     res.json({ message: 'StyleNest Serverless Catch-All API is running!' });
 });
 
 app.use(notFound);
 app.use(errorHandler);
 
-export default function handler(req, res) {
-    return app(req, res);
-}
+export default app;
