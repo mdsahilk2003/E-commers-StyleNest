@@ -1,2 +1,5 @@
-import app from './[...path].js';
-export default app;
+import app from '../backend/server.js';
+
+export default function handler(req, res) {
+    return app(req, res);
+}
