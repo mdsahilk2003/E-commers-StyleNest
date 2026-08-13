@@ -17,9 +17,6 @@ import paymentRoutes from './routes/payment.js';
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
-
 const app = express();
 
 // Body parser middleware
@@ -45,6 +42,17 @@ app.use(
         credentials: true,
     })
 );
+
+// Async DB connection middleware to ensure database connection before handling requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error('Database connection middleware error:', err);
+        next(err);
+    }
+});
 
 // API Routes (supports both /api/ prefix and serverless rewrites)
 app.use(['/api/auth', '/auth'], authRoutes);

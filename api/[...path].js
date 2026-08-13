@@ -21,7 +21,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors({ origin: true, credentials: true }));
 
-connectDB();
+// Async DB connection middleware to ensure database connection before handling requests
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error('Database connection middleware error:', err);
+        next(err);
+    }
+});
 
 app.use(['/api/auth', '/auth'], authRoutes);
 app.use(['/api/products', '/products'], productRoutes);
